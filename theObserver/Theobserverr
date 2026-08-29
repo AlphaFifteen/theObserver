@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🍕 The Observer</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
+    body {
+      background: linear-gradient(145deg, #1a2a3a 0%, #0f1a24 100%);
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Courier New', Courier, monospace;
+      padding: 1rem;
+    }
+    .game-box {
+      background: #d9d0c0;
+      background-image: radial-gradient(circle at 10% 20%, #f0ead8, #c2b8a2);
+      padding: 1.8rem 2rem 2.5rem;
+      border-radius: 6rem 2rem 6rem 2rem;
+      box-shadow: 0 25px 40px rgba(0,0,0,0.7), inset 0 2px 8px rgba(255,245,200,0.6);
+      border: 3px solid #b8a68b;
+      max-width: 680px;
+      width: 100%;
+      transition: 0.2s;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2.6rem;
+      font-weight: 700;
+      letter-spacing: 4px;
+      color: #2c3e3f;
+      text-shadow: 3px 3px 0 #baa78c, 0 0 0 #000;
+      margin: 0 0 0.2rem 0;
+      font-family: 'Impact', 'Courier New', monospace;
+      word-break: break-word;
+      transform: rotate(-0.5deg);
+    }
+    .sub {
+      font-size: 0.9rem;
+      background: #4d5d4e;
+      color: #eee5d3;
+      padding: 0.3rem 1.2rem;
+      border-radius: 40px;
+      display: inline-block;
+      letter-spacing: 2px;
+      margin-bottom: 1.6rem;
+      border: 1px solid #c0ad8b;
+      box-shadow: inset 0 -2px 0 #1f2a1f;
+      font-weight: 600;
+    }
+    .canvas-wrapper {
+      background: #bfb09a;
+      padding: 12px;
+      border-radius: 70px 20px 70px 20px;
+      box-shadow: inset 0 0 0 3px #8d7e68, 0 12px 18px rgba(0,0,0,0.4);
+      margin: 0.5rem 0 1.2rem 0;
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 400 / 300;
+      background: #d5e0d9;
+      background-image: linear-gradient(45deg, #bccfc4 0%, #d8e6dc 80%);
+      border-radius: 50px 10px 50px 10px;
+      box-shadow: inset 0 0 0 4px #726450, 0 4px 0 #3f3a2e;
+      cursor: crosshair;
+      touch-action: none;
+      image-rendering: crisp-edges;
+    }
+    .info-panel {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #4f5f4b;
+      padding: 0.4rem 1.2rem 0.4rem 1.8rem;
+      border-radius: 70px;
+      background: #7a8b74;
+      box-shadow: inset 0 3px 0 #4f604a, 0 6px 0 #2b3527;
+      margin: 0.8rem 0 0.2rem 0;
+      color: #f9f3e6;
+      font-weight: bold;
+      font-size: 1.4rem;
+      border: 1px solid #b3a386;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .score-box {
+      background: #1c2b26;
+      padding: 0.2rem 1rem;
+      border-radius: 60px;
+      color: #fadf9e;
+      font-size: 1.8rem;
+      min-width: 80px;
+      letter-spacing: 2px;
+      text-shadow: 0 2px 0 #0f1a12;
+      border: 1px solid #b1a888;
+    }
+    .btn-group {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 0.2rem 0;
+    }
+    .btn {
+      background: #fbeed8;
+      border: 3px solid #5a4c38;
+      color: #1f2d1c;
+      font-weight: 700;
+      font-size: 1.2rem;
+      padding: 0.3rem 1.4rem;
+      border-radius: 60px;
+      box-shadow: 0 6px 0 #3b3325, 0 8px 10px rgba(0,0,0,0.3);
+      cursor: pointer;
+      transition: all 0.04s linear;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 1px;
+      background: #fff7e6;
+      flex: 1 0 auto;
+    }
+    .btn:active {
+      transform: translateY(5px);
+      box-shadow: 0 1px 0 #3b3325;
+    }
+    .btn.reset {
+      background: #e0c9b0;
+      color: #242019;
+    }
+    .hint {
+      font-size: 0.8rem;
+      background: #353f30;
+      color: #e4decb;
+      padding: 0.2rem 1rem;
+      border-radius: 60px;
+      display: inline-block;
+      margin-top: 0.6rem;
+      border: 1px solid #9b8a72;
+    }
+    @media (max-width: 500px) {
+      .game-box { padding: 1rem; }
+      h1 { font-size: 2.2rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="game-box">
+  <h1>👁️ THE OBSERVER</h1>
+  <div class="sub">✨ cool · cool · so cool ✨</div>
+
+  <div class="canvas-wrapper">
+    <canvas id="gameCanvas" width="400" height="300"></canvas>
+  </div>
+
+  <div class="info-panel">
+    <span>👀 watch</span>
+    <span class="score-box" id="scoreDisplay">0</span>
+  </div>
+
+  <div class="btn-group">
+    <button class="btn" id="clickBtn">🖱️ click me</button>
+    <button class="btn reset" id="resetBtn">⟳ reset</button>
+  </div>
+  <div class="hint">⚡ the circle moves · click it before it escapes! ⚡</div>
+</div>
+
+<script>
+  (function(){
+    //This is where all the game brain is suckers!!!
+    // "The Observer" – a game where you must click a moving circle
+    // that tries to run away. Score = successful clicks.
+
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const scoreSpan = document.getElementById('scoreDisplay');
+
+    const W = 400, H = 300;
+
+    let circle = {
+      x: 180,
+      y: 120,
+      radius: 22,
+      vx: 0.7,
+      vy: 0.5
+    };
+
+    let score = 0;
+
+    let clickCooldown = false;
+
+    function randomRange(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    function resetCirclePosition() {
+      circle.x = randomRange(40, W - 40);
+      circle.y = randomRange(40, H - 40);
+      circle.vx = randomRange(-1.2, 1.2);
+      circle.vy = randomRange(-1.2, 1.2);
+      if (Math.abs(circle.vx) < 0.3) circle.vx = 0.7;
+      if (Math.abs(circle.vy) < 0.3) circle.vy = -0.7;
+      circle.radius = randomRange(16, 28);
+    }
+
+    function resetGame() {
+      score = 0;
+      updateScore();
+      resetCirclePosition();
+      clickCooldown = false;
+    }
+
+    function updateScore() {
+      scoreSpan.textContent = score;
+    }
+
+    function isInsideCircle(px, py, circ) {
+      const dx = px - circ.x;
+      const dy = py - circ.y;
+      return (dx * dx + dy * dy) <= (circ.radius * circ.radius);
+    }
+
+    function moveCircle() {
+    
+      circle.x += circle.vx;
+      circle.y += circle.vy;
+
+      if (circle.x - circle.radius < 0) {
+        circle.x = circle.radius;
+        circle.vx = -circle.vx;
+      } else if (circle.x + circle.radius > W) {
+        circle.x = W - circle.radius;
+        circle.vx = -circle.vx;
+      }
+
+
+      if (circle.y - circle.radius < 0) {
+        circle.y = circle.radius;
+        circle.vy = -circle.vy;
+      } else if (circle.y + circle.radius > H) {
+        circle.y = H - circle.radius;
+        circle.vy = -circle.vy;
+      }
+
+
+      if (Math.random() < 0.04) {
+        circle.vx += randomRange(-0.25, 0.25);
+        circle.vy += randomRange(-0.25, 0.25);
+        const maxSpeed = 2.0;
+        let spd = Math.hypot(circle.vx, circle.vy);
+        if (spd > maxSpeed) {
+          circle.vx = (circle.vx / spd) * maxSpeed;
+          circle.vy = (circle.vy / spd) * maxSpeed;
+        }
+        if (spd < 0.4 && Math.random() < 0.3) {
+          circle.vx += (Math.random() > 0.5 ? 0.5 : -0.5);
+          circle.vy += (Math.random() > 0.5 ? 0.5 : -0.5);
+        }
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+
+      ctx.fillStyle = '#b7cfc0';
+      ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = '#8ba392';
+      for (let i = 0; i < W; i += 30) {
+        for (let j = 0; j < H; j += 30) {
+          ctx.beginPath();
+          ctx.arc(i, j, 1.5, 0, Math.PI * 2);
+          ctx.fillStyle = '#6c7d6a';
+          ctx.fill();
+        }
+      }
+
+      ctx.fillStyle = '#516b55';
+      ctx.font = '24px "Courier New", monospace';
+      ctx.fillText('👁', 20, 50);
+      ctx.fillText('👁', 340, 270);
+      ctx.fillText('🌀', 350, 40);
+      ctx.fillStyle = '#3b4d3a';
+      ctx.font = '18px monospace';
+      ctx.fillText('⚡', 50, 280);
+
+      ctx.shadowColor = '#0f1a12';
+      ctx.shadowBlur = 16;
+      ctx.shadowOffsetX = 4;
+      ctx.shadowOffsetY = 4;
+
+      const grad = ctx.createRadialGradient(
+        circle.x - 6, circle.y - 6, 4,
+        circle.x, circle.y, circle.radius + 4
+      );
+      grad.addColorStop(0, '#fadf9e');
+      grad.addColorStop(0.5, '#e5b56b');
+      grad.addColorStop(1, '#a07d47');
+      ctx.beginPath();
+      ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
+      ctx.fillStyle = grad;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 0;
+
+      ctx.beginPath();
+      ctx.arc(circle.x - 4, circle.y - 4, circle.radius * 0.3, 0, Math.PI * 2);
+      ctx.fillStyle = '#2b2a1c';
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(circle.x + 6, circle.y - 2, circle.radius * 0.2, 0, Math.PI * 2);
+      ctx.fillStyle = '#1f1e14';
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(circle.x - 6, circle.y - 10, 4, 0, Math.PI * 2);
+      ctx.fillStyle = '#fcf6e8';
+      ctx.globalAlpha = 0.7;
+      ctx.fill();
+      ctx.globalAlpha = 1.0;
+
+    
+      ctx.strokeStyle = '#3a3327';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
+      ctx.stroke();
+
+      if (circle.radius > 15) {
+        ctx.fillStyle = '#2b2217';
+        ctx.font = 'bold 11px "Courier New", monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('⚡', circle.x, circle.y - 2);
+      }
+
+      
+      ctx.fillStyle = '#19261f';
+      ctx.font = '8px monospace';
+      ctx.fillText('👁️', circle.x + 12, circle.y - 12);
+    }
+
+    function gameLoop() {
+      moveCircle();
+      draw();
+      requestAnimationFrame(gameLoop);
+    }
+
+    function handleCanvasClick(e) {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;   // canvas physical size / CSS size
+      const scaleY = canvas.height / rect.height;
+
+      let clientX, clientY;
+      if (e.touches) {
+        
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+        e.preventDefault();  // avoid scrolling
+      } else {
+        clientX = e.clientX;
+        clientY = e.clientY;
+      }
+
+      const canvasX = (clientX - rect.left) * scaleX;
+      const canvasY = (clientY - rect.top) * scaleY;
+
+      if (isInsideCircle(canvasX, canvasY, circle)) {
+      
+        if (clickCooldown) return;
+        clickCooldown = true;
+
+        score++;
+        updateScore();
+
+        resetCirclePosition();
+
+        setTimeout(() => {
+          clickCooldown = false;
+        }, 120);
+      } else {
+        const dx = circle.x - canvasX;
+        const dy = circle.y - canvasY;
+        const dist = Math.hypot(dx, dy);
+        if (dist > 1) {
+          const push = 18 / (dist + 1);
+          circle.x += (dx / dist) * push * 0.8;
+          circle.y += (dy / dist) * push * 0.8;
+          // also reverse velocity for fun
+          circle.vx += (dx / dist) * 0.3;
+          circle.vy += (dy / dist) * 0.3;
+        }
+      }
+    }
+
+    canvas.addEventListener('click', handleCanvasClick);
+    canvas.addEventListener('touchstart', handleCanvasClick, { passive: false });
+
+    document.getElementById('clickBtn').addEventListener('click', function() {
+    
+      if (clickCooldown) return;
+      clickCooldown = true;
+
+      score++;
+      updateScore();
+      resetCirclePosition();
+
+      setTimeout(() => {
+        clickCooldown = false;
+      }, 130);
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', function() {
+      resetGame();
+    });
+
+    resetGame();  // initial setup
+    gameLoop();
+
+    canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+
+  })();
+</script>
+</body>
+</html>
